@@ -17,6 +17,9 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Typing :: Typed",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Software Development :: Libraries :: Python Modules",
     ],
     python_requires='>=3.8',
 )
