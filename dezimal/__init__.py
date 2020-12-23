@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import re
 import math
+from decimal import Decimal
 from typing import Union, Callable
 
 
 class Dec(tuple):
     __slots__ = []
 
-    def __new__(cls, value: Union[bool, int, float, str, Dec], scale: int = None):
+    def __new__(cls, value: Union[bool, int, float, str, Dec, Decimal], scale: int = None):
         if scale is None:
             scale = 0
         else:
@@ -18,6 +19,8 @@ class Dec(tuple):
                 raise ValueError(scale)
         if isinstance(value, Dec):
             return value
+        if isinstance(value, Decimal):
+            value = str(value)
         if isinstance(value, bool):
             return Dec(1) if value else Dec(0)
         if isinstance(value, float):
@@ -25,8 +28,7 @@ class Dec(tuple):
         if isinstance(value, str):
             return Dec.from_string(value)
         if not isinstance(value, int):
-            if not isinstance(value, int):
-                raise TypeError(f"when scale is given, value must be an int, but is {type(value)}: {value}")
+            raise TypeError(f"when scale is given, value must be an int, but is {type(value)}: {value}")
         while scale > 0 and value % 10 == 0:
             scale -= 1
             value //= 10
@@ -100,9 +102,13 @@ class Dec(tuple):
             return str(self.value)
 
     def __int__(self) -> int:
+        if self.scale == 0:
+            return self.value
         return self.value // (10 ** self.scale)
 
     def __float__(self) -> float:
+        if self.scale == 0:
+            return float(self.value)
         return self.value / 10 ** self.scale
 
     def __bool__(self) -> bool:
