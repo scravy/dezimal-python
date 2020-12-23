@@ -19,7 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Typing :: Typed",
         "Topic :: Scientific/Engineering :: Mathematics",
-        "Software Development :: Libraries :: Python Modules",
     ],
     python_requires='>=3.8',
 )
