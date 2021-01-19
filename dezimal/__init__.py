@@ -49,26 +49,29 @@ class Dec(tuple):
             value = int(value)
             scale = 0
             return Dec(sign * value, scale)
-        elif m := re.match(r"^([0-9]+)\.([0-9]+)$", value):
+        m = re.match(r"^([0-9]+)\.([0-9]+)$", value)
+        if m:
             frac = m.group(2)
             value = int(m.group(1)) * (10 ** len(frac)) + int(frac)
             scale = len(frac)
             return Dec(sign * value, scale)
-        elif m := re.match(r"^([0-9]+)[eE]([+-]?[0-9]+)$", value):
+        m = re.match(r"^([0-9]+)[eE]([+-]?[0-9]+)$", value)
+        if m:
             value = int(m.group(1))
             scale = int(m.group(2))
             if scale < 0:
                 return Dec(sign * value, -scale)
             return Dec(sign * value * 10 ** scale)
-        elif m := re.match(r"^([0-9]+)\.([0-9]+)[eE]([+-]?[0-9]+)$", value):
+        m = re.match(r"^([0-9]+)\.([0-9]+)[eE]([+-]?[0-9]+)$", value)
+        if m:
             frac = m.group(2)
             value = int(m.group(1)) * (10 ** len(frac)) + int(frac)
             scale = len(frac) - int(m.group(3))
             if scale < 0:
                 return Dec(sign * value * (10 ** -scale))
             return Dec(sign * value, scale)
-        else:
-            raise ValueError(value)
+
+        raise ValueError(value)
 
     @property
     def value(self):
