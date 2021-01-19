@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import re
 import math
+import re
 from decimal import Decimal
 from typing import Union, Callable
 
@@ -186,14 +186,26 @@ class Dec(tuple):
     def __add__(self, other) -> Dec:
         return self._scaled(self, other, lambda a, b: a + b)
 
+    def __radd__(self, other) -> Dec:
+        return Dec(other) + self
+
     def __sub__(self, other) -> Dec:
         return self._scaled(self, other, lambda a, b: a - b)
+
+    def __rsub__(self, other) -> Dec:
+        return Dec(other) - self
 
     def __mul__(self, other) -> Dec:
         return self._scaled(self, other, lambda a, b: a * b, lambda a, b: a + b, rescale=False)
 
+    def __rmul__(self, other) -> Dec:
+        return Dec(other) * self
+
     def __floordiv__(self, other) -> Dec:
         return Dec(int(self) // int(other))
+
+    def __rfloordiv__(self, other) -> Dec:
+        return Dec(other) // self
 
     @staticmethod
     def div(this: Dec, that: Dec, maxscale: Union[int, type(None)] = None, minscale: int = 17) -> Dec:
@@ -222,3 +234,9 @@ class Dec(tuple):
 
     def __truediv__(self, other) -> Dec:
         return Dec.div(self, Dec(other))
+
+    def __rtruediv__(self, other) -> Dec:
+        return Dec.div(Dec(other), self)
+
+
+Dezimal = Dec
