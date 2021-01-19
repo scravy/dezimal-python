@@ -1,15 +1,13 @@
-from __future__ import annotations
-
 import math
 import re
 from decimal import Decimal
 from typing import Union, Callable
 
 
-class Dec(tuple):
+class Dezimal(tuple):
     __slots__ = []
 
-    def __new__(cls, value: Union[bool, int, float, str, Dec, Decimal], scale: int = None):
+    def __new__(cls, value: Union[bool, int, float, str, 'Dezimal', Decimal], scale: int = None):
         if scale is None:
             scale = 0
         else:
@@ -17,16 +15,16 @@ class Dec(tuple):
                 raise TypeError(scale)
             if scale < 0:
                 raise ValueError(scale)
-        if isinstance(value, Dec):
+        if isinstance(value, Dezimal):
             return value
         if isinstance(value, Decimal):
             value = str(value)
         if isinstance(value, bool):
-            return Dec(1) if value else Dec(0)
+            return Dezimal(1) if value else Dezimal(0)
         if isinstance(value, float):
             value = str(value)
         if isinstance(value, str):
-            return Dec.from_string(value)
+            return Dezimal.from_string(value)
         if not isinstance(value, int):
             raise TypeError(f"when scale is given, value must be an int, but is {type(value)}: {value}")
         while scale > 0 and value % 10 == 0:
@@ -36,7 +34,7 @@ class Dec(tuple):
         return tuple.__new__(cls, (value, scale))
 
     @staticmethod
-    def from_string(value: str) -> Dec:
+    def from_string(value: str) -> 'Dezimal':
         sign = 1
         if not value:
             raise ValueError(value)
@@ -48,28 +46,28 @@ class Dec(tuple):
         if re.match(r"^[0-9]+$", value):
             value = int(value)
             scale = 0
-            return Dec(sign * value, scale)
+            return Dezimal(sign * value, scale)
         m = re.match(r"^([0-9]+)\.([0-9]+)$", value)
         if m:
             frac = m.group(2)
             value = int(m.group(1)) * (10 ** len(frac)) + int(frac)
             scale = len(frac)
-            return Dec(sign * value, scale)
+            return Dezimal(sign * value, scale)
         m = re.match(r"^([0-9]+)[eE]([+-]?[0-9]+)$", value)
         if m:
             value = int(m.group(1))
             scale = int(m.group(2))
             if scale < 0:
-                return Dec(sign * value, -scale)
-            return Dec(sign * value * 10 ** scale)
+                return Dezimal(sign * value, -scale)
+            return Dezimal(sign * value * 10 ** scale)
         m = re.match(r"^([0-9]+)\.([0-9]+)[eE]([+-]?[0-9]+)$", value)
         if m:
             frac = m.group(2)
             value = int(m.group(1)) * (10 ** len(frac)) + int(frac)
             scale = len(frac) - int(m.group(3))
             if scale < 0:
-                return Dec(sign * value * (10 ** -scale))
-            return Dec(sign * value, scale)
+                return Dezimal(sign * value * (10 ** -scale))
+            return Dezimal(sign * value, scale)
 
         raise ValueError(value)
 
@@ -85,7 +83,7 @@ class Dec(tuple):
         raise TypeError
 
     def __repr__(self) -> str:
-        return f"Dec({repr(str(self))})"
+        return f"Dezimal({repr(str(self))})"
 
     def __str__(self) -> str:
         if self.scale > 0:
@@ -123,10 +121,10 @@ class Dec(tuple):
                 scale_func: Callable[[int, int], int] = max,
                 rescale: bool = True,
                 result_constructor=None):
-        if not isinstance(this, Dec):
-            this = Dec(this)
-        if not isinstance(that, Dec):
-            that = Dec(that)
+        if not isinstance(this, Dezimal):
+            this = Dezimal(this)
+        if not isinstance(that, Dezimal):
+            that = Dezimal(that)
         target_scale = scale_func(this.scale, that.scale)
         if rescale:
             this_diff = target_scale - this.scale
@@ -139,28 +137,28 @@ class Dec(tuple):
         result = func(this_value, that_value)
         if result_constructor is not None:
             return result_constructor(result, target_scale)
-        return Dec(result, target_scale)
+        return Dezimal(result, target_scale)
 
-    def truncate(self, scale: int) -> Dec:
+    def truncate(self, scale: int) -> 'Dezimal':
         if scale < 0:
             raise ValueError(scale)
         if scale >= self.scale:
             return self
         scale_diff = self.scale - scale
         target_value = self.value // (10 ** scale_diff)
-        return Dec(target_value, scale)
+        return Dezimal(target_value, scale)
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, Dec):
+        if not isinstance(other, Dezimal):
             try:
-                other = Dec(other)
+                other = Dezimal(other)
             except TypeError:
                 return False
         return self.value == other.value and self.scale == other.scale
 
     def __ne__(self, other) -> bool:
         try:
-            other = Dec(other)
+            other = Dezimal(other)
         except TypeError:
             return False
         return self.value != other.value or self.scale != other.scale
@@ -177,41 +175,41 @@ class Dec(tuple):
     def __ge__(self, other) -> bool:
         return self._scaled(self, other, lambda a, b: a >= b, result_constructor=lambda a, _: bool(a))
 
-    def __neg__(self) -> Dec:
-        return Dec(-self.value, self.scale)
+    def __neg__(self) -> 'Dezimal':
+        return Dezimal(-self.value, self.scale)
 
-    def __abs__(self) -> Dec:
-        return Dec(abs(self.value), self.scale)
+    def __abs__(self) -> 'Dezimal':
+        return Dezimal(abs(self.value), self.scale)
 
-    def __pos__(self) -> Dec:
+    def __pos__(self) -> 'Dezimal':
         return self
 
-    def __add__(self, other) -> Dec:
+    def __add__(self, other) -> 'Dezimal':
         return self._scaled(self, other, lambda a, b: a + b)
 
-    def __radd__(self, other) -> Dec:
-        return Dec(other) + self
+    def __radd__(self, other) -> 'Dezimal':
+        return Dezimal(other) + self
 
-    def __sub__(self, other) -> Dec:
+    def __sub__(self, other) -> 'Dezimal':
         return self._scaled(self, other, lambda a, b: a - b)
 
-    def __rsub__(self, other) -> Dec:
-        return Dec(other) - self
+    def __rsub__(self, other) -> 'Dezimal':
+        return Dezimal(other) - self
 
-    def __mul__(self, other) -> Dec:
+    def __mul__(self, other) -> 'Dezimal':
         return self._scaled(self, other, lambda a, b: a * b, lambda a, b: a + b, rescale=False)
 
-    def __rmul__(self, other) -> Dec:
-        return Dec(other) * self
+    def __rmul__(self, other) -> 'Dezimal':
+        return Dezimal(other) * self
 
-    def __floordiv__(self, other) -> Dec:
-        return Dec(int(self) // int(other))
+    def __floordiv__(self, other) -> 'Dezimal':
+        return Dezimal(int(self) // int(other))
 
-    def __rfloordiv__(self, other) -> Dec:
-        return Dec(other) // self
+    def __rfloordiv__(self, other) -> 'Dezimal':
+        return Dezimal(other) // self
 
     @staticmethod
-    def div(this: Dec, that: Dec, maxscale: Union[int, type(None)] = None, minscale: int = 17) -> Dec:
+    def div(this: 'Dezimal', that: 'Dezimal', maxscale: Union[int, type(None)] = None, minscale: int = 17) -> 'Dezimal':
         d1 = 10 ** this.scale
         d2 = 10 ** that.scale
         n = this.value * d2
@@ -220,7 +218,7 @@ class Dec(tuple):
         n //= gcd
         d //= gcd
         if d == 1:
-            return Dec(n)
+            return Dezimal(n)
 
         matches = set()
         scale = 0
@@ -233,13 +231,10 @@ class Dec(tuple):
             value += n // d
             n = n % d
 
-        return Dec(value, scale)
+        return Dezimal(value, scale)
 
-    def __truediv__(self, other) -> Dec:
-        return Dec.div(self, Dec(other))
+    def __truediv__(self, other) -> 'Dezimal':
+        return Dezimal.div(self, Dezimal(other))
 
-    def __rtruediv__(self, other) -> Dec:
-        return Dec.div(Dec(other), self)
-
-
-Dezimal = Dec
+    def __rtruediv__(self, other) -> 'Dezimal':
+        return Dezimal.div(Dezimal(other), self)
