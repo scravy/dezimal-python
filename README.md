@@ -6,7 +6,7 @@ libraries is that there is no maximum precision for example
 when doing divisions.
 
 ```
->>> from dezimal import Dec
+>>> from dezimal import Dezimal
 >>> Dezimal("355") / Dezimal("113")
 Dezimal('3.14159292035398230088495575221238938053097345132743362831858407079646017699115044247787610619469026548672566371681')
 ```
@@ -34,24 +34,24 @@ Dezimal('0.33333333333333333')
 ```
 
 These parameters can be controlled by invoking the static `div`
-method in `Dec` directly:
+method in `Dezimal` directly:
 
 ```
->>> Dec.div(Dezimal("1"), Dezimal("3"), minscale=5)
+>>> Dezimal.div(Dezimal("1"), Dezimal("3"), minscale=5)
 Dezimal('0.33333')
 ```
 
 Also a maximum precision can be given:
 
 ```
->>> Dec.div(Dezimal("355"), Dezimal("113"), maxscale=30)
+>>> Dezimal.div(Dezimal("355"), Dezimal("113"), maxscale=30)
 Dezimal('3.141592920353982300884955752212')
 ```
 
 
 ## Construction
 
-An instance of `Dec` can be constructed from `int`, `float`, `bool`,
+An instance of `Dezimal` can be constructed from `int`, `float`, `bool`,
 or a `str`. The usual formats like `3`, `3.0`, `7e1`, `-7e-9`, or
 `+13.03e-3` are understood. 
 
