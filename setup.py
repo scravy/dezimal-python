@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dezimal",
-    version="0.3.0",
+    version="0.4.0",
     author="Julian Fleischer",
     author_email="tirednesscankill@warhog.net",
     description="Arbitrary precision decimal numbers",
