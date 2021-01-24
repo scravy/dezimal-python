@@ -1,6 +1,9 @@
 import unittest
+from numbers import Number
 
 from dezimal import Dezimal
+
+from apm import *
 
 
 class DecTest(unittest.TestCase):
@@ -71,6 +74,14 @@ class DecTest(unittest.TestCase):
     def test_add_different_types(self):
         self.assertEqual(Dezimal(6), Dezimal(3) + 3)
         self.assertEqual(Dezimal(6), 3 + Dezimal(3))
+
+    def test_matches(self):
+        self.assertTrue(match(Dezimal(1), Dezimal(1)))
+        self.assertTrue(match(Dezimal(1), Strict(Dezimal(1))))
+        self.assertTrue(match(Dezimal(1), Dezimal(1), strict=True))
+
+    def test_instanceof_number(self):
+        self.assertTrue(match(Dezimal(1), InstanceOf(Number)))
 
 
 if __name__ == '__main__':

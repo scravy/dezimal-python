@@ -2,9 +2,10 @@ import math
 import re
 from decimal import Decimal
 from typing import Union, Callable
+from numbers import Number
 
 
-class Dezimal(tuple):
+class Dezimal(tuple, Number):
     __slots__ = []
 
     def __new__(cls, value: Union[bool, int, float, str, 'Dezimal', Decimal], scale: int = None):
