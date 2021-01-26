@@ -3,7 +3,11 @@ from numbers import Number
 
 from dezimal import Dezimal
 
-from apm import *
+no_apm = False
+try:
+    from apm import *
+except ImportError:
+    no_apm = True
 
 
 class DecTest(unittest.TestCase):
@@ -75,11 +79,13 @@ class DecTest(unittest.TestCase):
         self.assertEqual(Dezimal(6), Dezimal(3) + 3)
         self.assertEqual(Dezimal(6), 3 + Dezimal(3))
 
+    @unittest.skipIf(no_apm, "apm not available")
     def test_matches(self):
         self.assertTrue(match(Dezimal(1), Dezimal(1)))
         self.assertTrue(match(Dezimal(1), Strict(Dezimal(1))))
         self.assertTrue(match(Dezimal(1), Dezimal(1), strict=True))
 
+    @unittest.skipIf(no_apm, "apm not available")
     def test_instanceof_number(self):
         self.assertTrue(match(Dezimal(1), InstanceOf(Number)))
 
